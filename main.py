@@ -12,7 +12,7 @@ from telegram.ext import (
 )
 
 # === Configuration ===
-BOT_TOKEN = '7542612722:AAEaissWRRDMPj1DeE5kz_3dV-HVnAHN5jY'
+BOT_TOKEN = '7822817179:AAHWrRBgIo_Mu3MO9-jj4b57nLjNH2AdNlw'
 APP_URL = 'https://py-stake.onrender.com'  # Replace with your Render URL
 
 app = FastAPI()
@@ -55,7 +55,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     await update.message.reply_text(
         "👋 Welcome to *Stake Mine Predictor Bot*\n\n"
         "🔐 Now uses *Provably Fair Hash-Based Logic*\n"
-        "🎯 Gives 4–6 safe positions with high accuracy!",
+        "🎯 Gives positions with high accuracy!",
         reply_markup=InlineKeyboardMarkup(keyboard),
         parse_mode="Markdown"
     )
