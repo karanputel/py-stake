@@ -13,7 +13,7 @@ from telegram.ext import (
 
 # === Configuration ===
 BOT_TOKEN = '7542612722:AAEaissWRRDMPj1DeE5kz_3dV-HVnAHN5jY'
-APP_URL = 'https://your-render-url.onrender.com'  # Replace with your Render URL
+APP_URL = 'https://py-stake.onrender.com'  # Replace with your Render URL
 
 app = FastAPI()
 bot_app = Application.builder().token(BOT_TOKEN).rate_limiter(AIORateLimiter()).build()
