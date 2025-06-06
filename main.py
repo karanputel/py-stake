@@ -68,12 +68,12 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     if query.data == "how_to_use":
         await query.message.reply_text(
-            "📽 How to Use:\nhttps://www.instagram.com/reel/DKdH4trRfC2/?igsh=MW1wZTgyZTdobW5lMw=="
+            "📽 How to Use:\ncoming soon🤚"
         )
     elif query.data == "start_bot":
         await query.message.reply_photo(
             photo="https://i.ibb.co/spgwSXts/Screenshot-20250604-195625-Canva-2.png",
-            caption="📩 Enter your **Server Seed**:"
+            caption="🔑 Enter your Server Seed:"
         )
 
 async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
@@ -104,7 +104,7 @@ async def handle_text(update: Update, context: ContextTypes.DEFAULT_TYPE):
 async def ask_mine(update: Update):
     keyboard = [[KeyboardButton(str(i)) for i in range(1, 8)]]
     await update.message.reply_text(
-        "💣 Select Mine Count (1–7):",
+        "💣 Select Mine:",
         reply_markup=ReplyKeyboardMarkup(keyboard, resize_keyboard=True)
     )
 
@@ -117,10 +117,10 @@ async def send_prediction(update: Update, user):
     for row in grid:
         result += " ".join(row) + "\n"
 
-    result += f"\n🔐 *Server Seed:* `{user['server_seed']}`"
+    result += f"\n🔑 *Server Seed:* `{user['server_seed']}`"
     result += f"\n🔢 *Nonce:* `{user['nonce']}`"
     result += f"\n💣 *Mine Count:* `{user['mine']}`"
-    result += "\n\n🧠 *Powered by HMAC-SHA256*\n🔍 Verifiable & Fair Results"
+    result += "\n\n🧠 *Powered by HM*C-SHA*56*\n🔍 Verifiable & Fair Results"
 
     await update.message.reply_text(result, parse_mode="Markdown")
 
