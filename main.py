@@ -12,7 +12,7 @@ from telegram.ext import (
 from telegram.ext.webhook import WebhookRequestHandler
 
 BOT_TOKEN = os.getenv("BOT_TOKEN", "7542612722:AAEaissWRRDMPj1DeE5kz_3dV-HVnAHN5jY")  # ✅ Set in Render env
-WEBHOOK_DOMAIN = os.getenv("WEBHOOK_DOMAIN", "https://your-app-name.onrender.com")     # Replace or set env
+WEBHOOK_DOMAIN = os.getenv("WEBHOOK_DOMAIN", "https://py-stake.onrender.com")     # Replace or set env
 WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
 
 user_data = {}
