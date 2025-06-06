@@ -53,7 +53,7 @@ async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
         [InlineKeyboardButton("📹 How to Use", callback_data="how_to_use")]
     ]
     await update.message.reply_text(
-        "👋 Welcome to *Stake Mine Predictor Bot*\n\n"
+        "👋 Welcome to *Stake Bot*\n\n"
         "🔐 Now uses *Provably Fair Hash-Based Logic*\n"
         "🎯 Gives positions with high accuracy!",
         reply_markup=InlineKeyboardMarkup(keyboard),
