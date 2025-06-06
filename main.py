@@ -1,41 +1,52 @@
+import random
 import hmac
 import hashlib
-import random
-import os
 from fastapi import FastAPI, Request
-from telegram import Update, InlineKeyboardButton, InlineKeyboardMarkup, ReplyKeyboardMarkup, KeyboardButton
+from telegram import (
+    Update, InlineKeyboardButton, InlineKeyboardMarkup,
+    ReplyKeyboardMarkup, KeyboardButton
+)
 from telegram.ext import (
-    Application, CallbackQueryHandler, CommandHandler, ContextTypes,
-    MessageHandler, filters
+    Application, CommandHandler, MessageHandler,
+    CallbackQueryHandler, ContextTypes, filters, AIORateLimiter
 )
 
-BOT_TOKEN = os.getenv("BOT_TOKEN", "your_token")
-WEBHOOK_DOMAIN = os.getenv("WEBHOOK_DOMAIN", "https://your-app-name.onrender.com")
-WEBHOOK_PATH = f"/webhook/{BOT_TOKEN}"
+# === Configuration ===
+BOT_TOKEN = '7542612722:AAEaissWRRDMPj1DeE5kz_3dV-HVnAHN5jY'
+APP_URL = 'https://your-render-url.onrender.com'  # Replace with your Render URL
 
+app = FastAPI()
+bot_app = Application.builder().token(BOT_TOKEN).rate_limiter(AIORateLimiter()).build()
 user_data = {}
 
+# === Hash-Based Prediction ===
 def generate_prediction_with_hash(server_seed, nonce, mine_count):
     total_positions = 25
     safe_count = random.choices([4, 5, 6], weights=[0.45, 0.45, 0.1])[0]
-
     message = f"{nonce}:{mine_count}"
     hash_hex = hmac.new(server_seed.encode(), message.encode(), hashlib.sha256).hexdigest()
-
     safe_indexes = []
     i = 0
     while len(safe_indexes) < safe_count and i + 4 <= len(hash_hex):
-        chunk = hash_hex[i:i + 4]
+        chunk = hash_hex[i:i+4]
         index = int(chunk, 16) % total_positions
         if index not in safe_indexes:
             safe_indexes.append(index)
         i += 4
-
     grid = ["🚫"] * total_positions
     for idx in safe_indexes:
         grid[idx] = "💎"
-    return [grid[i:i + 5] for i in range(0, total_positions, 5)]
+    return [grid[i:i+5] for i in range(0, total_positions, 5)]
 
+# === FastAPI Webhook ===
+@app.post("/")
+async def webhook(request: Request):
+    data = await request.json()
+    update = Update.de_json(data, bot_app.bot)
+    await bot_app.process_update(update)
+    return {"status": "ok"}
+
+# === Handlers ===
 async def start(update: Update, context: ContextTypes.DEFAULT_TYPE):
     keyboard = [
         [InlineKeyboardButton("▶️ Start", callback_data="start_bot")],
@@ -56,7 +67,9 @@ async def button_handler(update: Update, context: ContextTypes.DEFAULT_TYPE):
     user_data[uid] = {}
 
     if query.data == "how_to_use":
-        await query.message.reply_text("📽 How to Use:\nhttps://www.instagram.com/reel/DKdH4trRfC2/")
+        await query.message.reply_text(
+            "📽 How to Use:\nhttps://www.instagram.com/reel/DKdH4trRfC2/?igsh=MW1wZTgyZTdobW5lMw=="
+        )
     elif query.data == "start_bot":
         await query.message.reply_photo(
             photo="https://i.ibb.co/spgwSXts/Screenshot-20250604-195625-Canva-2.png",
@@ -112,29 +125,16 @@ async def send_prediction(update: Update, user):
     await update.message.reply_text(result, parse_mode="Markdown")
 
     user_data[update.message.from_user.id] = {}
-
     keyboard = [[InlineKeyboardButton("🔁 Predict Again", callback_data="start_bot")]]
     await update.message.reply_text("🔮 Want to predict again?", reply_markup=InlineKeyboardMarkup(keyboard))
 
-# ⚙️ FastAPI App Setup
-app = FastAPI()
-telegram_app = Application.builder().token(BOT_TOKEN).build()
+# === Register Handlers ===
+bot_app.add_handler(CommandHandler("start", start))
+bot_app.add_handler(CallbackQueryHandler(button_handler))
+bot_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
 
-# Add Telegram Handlers
-telegram_app.add_handler(CommandHandler("start", start))
-telegram_app.add_handler(CallbackQueryHandler(button_handler))
-telegram_app.add_handler(MessageHandler(filters.TEXT & ~filters.COMMAND, handle_text))
-
-@app.get("/")
-async def root():
-    return {"status": "bot is live"}
-
-@app.post(WEBHOOK_PATH)
-async def telegram_webhook(request: Request):
-    data = await request.json()
-    update = Update.de_json(data, telegram_app.bot)
-    await telegram_app.process_update(update)
-
+# === Startup: Set Webhook ===
 @app.on_event("startup")
-async def startup():
-    await telegram_app.bot.set_webhook(url=WEBHOOK_DOMAIN + WEBHOOK_PATH)
+async def on_startup():
+    await bot_app.initialize()
+    await bot_app.bot.set_webhook(url=f"{APP_URL}/")
